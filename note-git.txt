@@ -16,10 +16,49 @@ $ git init						这个目录变成Git可以管理的仓库
 $ vi readme.txt					编写一个readme.txt文件"Git is a version control system.Git is free software."
 $ git add readme.txt			把文件添加到仓库
 $ git commit -m "wrote a readme file"	把文件提交到仓库
-
 $ git status
 
+$ git add *
 $ git commit -m "commit all files"
+$ git status
+
+时光机穿梭
++- 修改前后的比较
+$ vi readme.txt					修改Git is a |distributed| version control system.
+$ git status
+$ git diff readme.txt 			看看具体修改了什么内容
+$ git add readme.txt
+$ git status
+$ git commit -m "add distributed"
+$ git status
+
++- 版本回退
+$ vi readme.txt					Git is free software |distributed under the GPL|.
+$ git add readme.txt
+$ git commit -m "append GPL"
+$ git log
+
+$ git reset --hard HEAD^		回退到上一个版本“add distributed”
+$ cat readme.txt
+$ git log
+$ git reset --hard 3628164		回退到指定的未来某个版本
+$ cat readme.txt
+$ git reflog					回退后找新版本的commit id（用于恢复到未来/新版本）
+
++- 工作区和暂存区
+$ vi readme.txt					修改：Git has a mutable index called stage.
+$ vi LICENSE					新增
+$ git status
+
+$ git add readme.txt
+$ git add LICENSE
+$ git status					暂存区：一改一新
+
+$ git commit -m "understand how stage works"
+$ git status					暂存区：空（“干净”）
+
+
+
 
 
 
