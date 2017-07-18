@@ -1,0 +1,202 @@
+
++- apt
+
+apt-cache search all | grep game
+
+apt-get install games-card
+
+sudo apt-get install chromium-browser 
+
++- 镜像整站
+wget -c -r -np -k -L -p --level=1 http://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000
+-r 递归下载
+-p 下载网页所需的所有文件，如图片等
+-np 不搜索上层目录
+-k 将绝对链接转为相对链接
+-l, --level=NUMBER 最大递归深度
+-c 断点续传
+-L 递归时不进入其它主机
+
+例子
+wget -r -p -np -k --level=1 www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000
+下了此1个目录0014316089557264a6b348958f449949df42a6d3a2e542c000
+
+wget -r -p -np -k           www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/00143217133614028a244ea855b40a586b551c616d3b2c9000
+下了1个目录0014316089557264a6b348958f449949df42a6d3a2e542c000
+
+wget -r -p -np -k           www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000
+下了4个目录，含0014316089557264a6b348958f449949df42a6d3a2e542c000
+
+wget -r -p -np -k --level=2 www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000
+下了4个目录，含0014316089557264a6b348958f449949df42a6d3a2e542c000
+
+该方法形成的镜像可压缩后发送到手机，通过ES文件浏览器解压（要下载安装7zip）到某目录，再在其中用浏览器（小米）打开html文件
+
+
++- 查看内存占用情况
+$ free -tw
+		  total        used		   free		shared	  buffers		  cache	  available
+Mem:	5994740		1705892		2933908		198540		89956		1264984		3829464
+Swap:	3906556		      0		3906556
+Total:	9901296		1705892		6840464
+
+被程序实实在在吃掉的内存：	used – buffers – cached 
+可以挪用的内存总数：		free + buffers + cached 
+
++- 查看(指定)进程的CPU, MEM占用
+
+|  +- 指定进程
+$ UNIX95= ps -C mousepad  
+-C	直接输入命令查找
+
+$ ps u -C mousepad
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+smith     2991  0.1  0.8 505512 50040 ?        Sl   09:07   0:17 mousepad /bak/tmp/note-install.txt
+smith     3000  0.0  0.8 505348 49088 ?        Sl   09:07   0:04 mousepad /bak/tmp/note-sys.txt
+smith     3007  0.4  0.9 511972 54632 ?        Sl   09:07   0:41 mousepad /bak/tmp/note-cmd.txt
+smith     3013  0.5  0.9 512984 54732 ?        Sl   09:07   0:49 mousepad /bak/tmp/note-cmd-efficiency.txt
+
+|  +- 常用1
+ps axu	（BSD风格）
+-a 除session leader的所有进程
+-x 与tty有关
+-u userlist (CPU, MEM, COMMAND)
+
+|  +- 常用2
+ps -def  
+-d session leaders.(进程按照进程组管理，进程组又属于session;第一个属于某个session的进程id就是这个session的leader，session id就用它的进程id)
+-e 同-A(所有进程)
+-f 显示完整格式
+
+
++- 查看进程对资源的占用情况
+
+$ top
+top - 10:41:24 up  2:01,  3 users,  load average: 0.22, 0.16, 0.17
+Tasks: 236 total,   1 running, 235 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.8 us,  0.3 sy,  0.0 ni, 98.8 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+KiB Mem :  5994740 total,  3305288 free,  1435888 used,  1253564 buff/cache
+KiB Swap:  3906556 total,  3906556 free,        0 used.  4142716 avail Mem 
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND                                                  
+ 2662 smith     20   0 1801664 145388  76684 S   1.3  2.4   0:49.12 chromium-browse                                          
+
+load average: 高于5的时候就表明系统在超负荷运转
+计算可用内存数(近似公式)：第四行的free + 第四行的buffers + 第五行的cached
+内存监控: 第五行swap交换分区的used，如果这个数值在不断的变化，说明内核在不断进行内存和swap的数据交换，这是真正的内存不够用了
+
+VIRT — 进程使用的虚拟内存总量，单位kb。VIRT=SWAP+RES
+RES — 进程使用的、未被换出的物理内存大小，单位kb。RES=CODE+DATA
+%CPU — 上次更新到现在的CPU时间占用百分比
+%MEM — 进程使用的物理内存百分比
+
+
++- 查看块设备（硬盘）IO性能
+
+|  +- 粗看"iowait值"、"IO次数/s"等指标
+$ iostat
+-d 1 2(采样时间间隔1秒，采样2次); -k(kB，原为扇区，一半);-x(详细的io统计信息)
+# iostat
+Linux 2.6.16.60-0.21-smp (linux)     06/12/12
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.07    0.00    0.05    0.06    0.00   99.81
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+sda               0.58         9.95        37.47    6737006   25377400
+
+avg-cpu: 总体cpu使用情况统计信息，对于多核cpu，这里为所有cpu的平均值；主要看iowait的值，它指示cpu用于等待io请求完成的时间。
+tps: 每秒进程下发的IO读、写请求数量
+Blk_read/s: 每秒读扇区数量(一扇区为512bytes)		Blk_wrtn/s: 每秒写扇区数量
+Blk_read: 取样时间间隔内读扇区总数量				Blk_wrtn: 取样时间间隔内写扇区总数量
+
+|  +- 细看－仔细分析其他指标
+$ iostat -kx 1
+Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util
+sda               0.00  9915.00    1.00   90.00     4.00 34360.00   755.25    11.79  120.57   6.33  57.60
+
+rrqm/s: 每秒对该设备的读请求被合并次数						wrqm/s: 每秒对该设备的写请求被合并次数
+r/s: 每秒完成的读次数										w/s: 每秒完成的写次数
+rkB/s: 每秒读数据量(kB为单位)								wkB/s: 每秒写数据量(kB为单位)
+avgrq-sz:平均每次IO操作的数据量(扇区数为单位)					avgqu-sz: 平均等待处理的IO请求队列长度
+await: 平均每次IO请求等待时间(包括等待时间和处理时间，毫秒为单位)	svctm: 平均每次IO请求的处理时间(毫秒为单位)
+%util: 采用周期内用于IO操作的时间比率，即IO队列非空的时间比率
+ 
+对于以上示例输出，我们可以获取到以下信息：
+1、每秒向磁盘上写30M左右数据(wkB/s值)
+2、每秒有91次IO操作(r/s+w/s)，其中以写操作为主体
+3、平均每次IO请求等待处理的时间为120.57毫秒，处理耗时为6.33毫秒
+4、等待处理的IO请求队列中，平均有11.79个请求驻留
+ 
+以上各值之间也存在联系，我们可以由一些值计算出其他数值，例如：
+util = (r/s+w/s) * (svctm/1000)
+对于上面的例子有：util = (1+90)*(6.33/1000) = 0.57603
+
+评估IOPS的性能(用每秒读写IO字节数 除以 每秒读写IOPS数，rkB/s除以r/s，wkB/s除以w/s)－－每次IO的吞吐能力
+
+|  +- 按应用类型分析"呑吐量"或"IO次数" 
+呑吐量－－IOPS的性能(用每秒读写IO字节数 除以 每秒读写IOPS数，rkB/s除以r/s，wkB/s除以w/s)
+$ iostat -kx 1		顺序IO示例
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.00    0.00    2.50   25.25    0.00   72.25
+Device:  rrqm/s   wrqm/s   r/s   w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util
+sdb       24.00 19995.00 29.00 99.00  4228.00 45060.00   770.12    45.01  539.65   7.80  99.80
+
+45060.00 / 99.00 = 455.15KB per IO，顺序IO更应该重视每次IO的吞吐能力（KB per IO）
+
+$ iostat -kx 1		随机IO示例
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           1.75    0.00    0.75    0.25    0.00   97.26
+
+Device:  rrqm/s   wrqm/s   r/s   w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util
+sdb        0.00    52.00  0.00 57.00     0.00   436.00    15.30     0.03    0.54   0.23   1.30
+
+436.00 / 57.00 = 7.65 KB per IO，随机 IO 的 KB per IO 小到可以忽略不计，可见对于随机 IO 而言重要的是每秒能 IOPS 的次数，而不是每次 IO 的吞吐能力（KB per IO）。
+
+
+
+
+
+
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+查看分区标识符
++- sudo blkid /dev/sda6
+
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
++- 命令参数前的一横（-）和两横（--）的区别
+背景
+1、System V 和BSD同出于AT＆T实验室的两个不同的部门，SystemV是一个Unix的商业化标准，BSD为Unix标准化的Berkeley风格。
+2、由于Linux是Linus Torvalds在以Unix为构架的系统上重新开发的，但仍沿用了两大Unix系统进程的风格，实事上应该确切的说Linus Torvalds只开发了kernel，而软件依然来自GNU和GPL两个组织。
+目前只有Slackware是Linux发行版中唯一使用BSD风格的版本。其他的就是FreeBSD、NetBSD和OpenBSD三个著名的BSD发行版，并遵循「GPL规范」。在商业版的Unix及多数Linux发行版使用SystemV风格的init『可能有版权纠纷问题』。Linux代表的有：RedHat、Suse、MDV、MagicLinux、Debian等几乎大部分发行版。Unix代表的有AIX、IRIX、Solars、HP-UX。
+
+命令参数(不同的使用方式)
+ls -a			有横是SystemV风格;	一横:后面的参数是字符形式
+cp --help							两横:后面的参数是单词形式
+tar -xzvf
+tar xzvf		没有横的是 BSD风格
+
+其他区别(SystemV和BSD)
+系统启动过程中 kernel 最后一步调用的是 init 程序，init 程序的执行有两种风格，即 System V 和 BSD。
+System V 风格中 init 调用 /etc/inittab，BSD 风格调用 /etc/rc，它们的目的相同，都是根据 runlevel 执行一系列的程序。
+
+疑惑（两种参数，结果不同）
+$ ps -a
+  PID TTY          TIME CMD
+ 5237 pts/0    00:00:00 ps
+$ ps a
+  PID TTY      STAT   TIME COMMAND
+ 1170 tty7     Ss+    1:40 /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 
+ 1174 tty1     Ss+    0:00 /sbin/agetty --noclear tty1 linux
+ 2569 pts/0    Ss     0:00 bash
+ 4639 pts/6    Ss+    0:00 bash
+ 5238 pts/0    R+     0:00 ps a
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+

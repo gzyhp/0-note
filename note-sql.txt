@@ -1,0 +1,216 @@
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+问题：
+
+
+中文问题－－设置字符编码
+文件/etc/mysql/mysql.conf.d/mysqld.cnf中[mysqld]节添加两行：
+character-set-server=utf8
+collation-server=utf8_general_ci
+
+创建DB时指定字符集
+create database samp_db character set gbk;
+
+重启mysql
+$ sudo /etc/init.d/mysql restart
+
+查看确定
+进入数据库，输入：show variables like "char%"
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
++- 安装mysql5.7
+sudo apt-get install mysql-server
+sudo apt-get install mysql-client
+sudo apt-get install libmysqlclient-dev
+
+sudo netstat -tap | grep mysql
+	socket处于 listen 状态则表示安装成功。
+
++- 登录
+$ mysql -D samp_db -u root -p			(123456  -h:指定客户端所要登录的MySQL主机名)
+>show databases;
+>use mysql;
+>show tables;
+
++- 使用数据库
+创建数据库，指定字符编码
+create database samp_db character set gbk;
+
+查看已创建的数据库
+show databases;
+
+选择数据库
+use samp_db;
+
+创建数据库表
+create table 表名称（列声明）；			列的名称以及该列的数据类型
+create table students
+(
+	id int unsigned not null auto_increment primary key,
+	name char(8) not null,
+	sex char(4) not null,
+	age tinyint unsigned not null,
+	tel char(13) null default "-"
+);
+
++- 操作数据库
+
+向表中插入数据
+insert [into] 表名[(列名1, 列名2, ...)] values(值1, 值2, ...);			[]可选内容
+insert into students values(NULL, "王刚", "男", 20, "13812341234");	标准形式
+insert into students (name, sex, age) values("孙珊", "女", 21);		不按顺序、部分数据
+
+查询表中数据
+select  列名 from 表名 [查询条件];
+select name, age from students;
+select * from students where id<5 and age>20 and name like "%王%";
+
+更新有中数据
+update students set tel=default where id=5;							将id为5的手机号改为默认的"-"
+update students set age=age+1;										将所有人的年龄增加1
+update students set name="张伟", age=19 where tel="13812341234";
+
+删除表中数据
+delete from 表名 where 删除条件;
+delete from students where id=2;
+delete from students where age<20;
+delete from students;
+
+创建后表的修改
+alter table 表名  add 列名 列数据类型 [after 插入位置];
+alter table students add address char(60);			在表的最后追加列address
+alter table students add address after age;			在表的age列后插入列address
+
+修改列
+alter table 表名 change 列名 列新名 新数据类型;
+alter table students change tel telphone char(13) default "-"; 	将tel列更名为telphone
+alter table students change name name char(16) not null;		将name列数据类型更改为char(16)
+
+删除列
+alter table 表名 drop 列名;
+alter table students drop birthday;								删除列birthday
+
+重命名表
+alter table 表名 rename 新静名;
+alter table students rename workmates;							重命名students表为workmates
+
+删除整张表
+drop table 表名;
+drop table workmates;
+
+删除整个数据库
+drop database 库名;
+drop database samp_db;
+
+其他
+修改密码
+mysqladmin -u root -p password
+
+
++- 各种查看
+
+显示表结构（字段类型，主键，是否为空等属性，但不显示外键）
+mysql> desc user;
+
+查询表中列的注释信息
+mysql> select * from information_schema.columns where table_schema='mysql' and table_name='user';  
+
+只查询列名和注释
+mysql> select column_name, column_comment from information_schema.columns where table_schema='mysql' and table_name='user';
+
+查看表的注释
+mysql> select table_name, table_comment from information_schema.tables where table_schema='mysql' and table_name='user'; 
+
+查看表生成的DDL（表结构、类型，外键，备注全部显示出来了，无';'）
+mysql> show create table user\G		
+
+
+表操作命令：
+复制表结构：create table table1 like table;
+复制数据：insert into table1 select * from table
+
+机器授权：
+grant select on *.* to 'reader'@'%' identified by '123456' WITH GRANT OPTION
+flush privileges
+
+查询数据直接插入
+insert into t_visual_user_domain(`user_id`,`domain`,`group`) select id,'www.baidu.com' as domain,`group` from t_visual_user;
+
+修改表结构
+alter table competitor_goods add sku_id bigint(20) unsigned DEFAULT NULL COMMENT '商品销售码';
+
+
++- 建立的sql脚本文件
+$ cat test1.sql 
+create database dearabao;
+use dearabao;
+create table niuzi(name varchar(20));
+
++- 执行脚本文件
+登录、自动执行(通过命令提示符下的文件重定向执行脚本文件)
+$ mysql -uroot -p123456 <test1.sql 
+登录后，在控制台手动执行
+mysql> source test1.sql
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+整套实验1
+
+创建数据库	create database stud;
+创建用户		grant all on stud.* to user1@localhost identified by "user1";
+创建表		
+Create table std_info  (nub char(10) not null, name varchar(20), class char(8), sex char(1), primary key(nub));	学生基本信息表std_info
+Create table curricula (code char(2), Curlum varchar(30));														课程表curricula
+Create table score_info(nub char(10) not null, Code char(2), Score double(5,2));								成绩表score_info
+增加主键		Alter table score_info add primary key (nub,code);
+插入记录		insert into std_info values('100001','张三','9701','m');
+更新记录		update std_info set name='张三丰' where nub='100001';													修改记录
+删除记录		delete from curricula where code='sy';
+单表查询		Select * from std_Info order by nub;	select count(*) from std_info;	Select nub,class from std_info where name='李四';
+分组查询		select class, sex, count(*) from std_info group by class, sex;
+联合查询		
+	学生基本信息表、课程表、成绩表联合；查询9701班英语平均成绩（使用avg函数计算平均分）
+	select avg(b.score) as '平均分' from std_info a, score_info b, curricula c where a.nub=b.nub and b.code=c.code and c.Curlum='英语' and a.class='9701';
+查询平均分
+	课程表、成绩表联合（通过课程代码）；查询各科平均成绩；按照课程代码、课程名称分组
+	select a.curlum, avg(score) from curricula a, score_info b where a.code=b.code group by a.code,a.curlum;
+联合查询排序
+	学生基本信息表、成绩表、课程表联合；查询vc成绩；按照成绩降序排列
+	select a.nub, name, score from std_info a, score_info b, curricula c where a.nub=b.nub and b.code=c.code and c.curlum='vc' order by b.score desc;
+联合查询最大值、最小值
+	学生基本信息表、成绩表、课程表联合；查询9702班高数成绩的最高分、最低分
+	select max(score) as '最高分' ,min(score) as '最低分' from std_info a, score_info b, curricula c where a.nub=b.nub and b.code=c.code and c.curlum='高数' and a.class='9702';
+删除表		drop table test;											清空表数据：truncate table film;	delete * from film;
+增加字段		Alter table film add addr varchar(40) not null;				增加addr字段: 属性为varchar(40), 非空
+修改字段名称	Alter table film change name f_name varchar(20) not null;	修改name字段: 名字为f_name, 属性为varchar(20), 非空
+修改字段属性	Alter table film modify addr varchar(30) not null;			修改addr字段: 属性为varchar(30)
+删除字段		Alter table film drop column addr;							删除addr字段
+
+导入导出数据
+mysqldump -uroot -p123 stud >stud_dump.txt								导出库（可用source导入）
+mysqldump -uroot -p123 stud std_info >stud_std.txt						导出表
+
+source ./stud.sql														导入（执行sql脚本文件）
+
+load data local infile './film.txt' into table film fields terminated by ',' lines terminated by '\r\n';	导入表数据（从文本文件中）
+
+mysqlimport, 导入数据, 将文本数据导入数据库
+	'The MySQL server is running with the --secure-file-priv option so it cannot execute this statement' 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

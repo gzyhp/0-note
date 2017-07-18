@@ -1,0 +1,59 @@
+
+
++- 查看系统挂载的设备
+/etc/mtab		文件显示当前系统已挂载的所有设备
+/proc/mounts	内容同上
+
+查看分区标识符
++- sudo blkid /dev/sda6
+
++- 开机自动挂载分区
+/etc/fstab
+UUID=c26a4b48-531a-49b9-9fc7-836bcd3a52ea /               ext4    errors=remount-ro 0       1
+UUID=90eda8ea-ebec-4b75-a811-418216a21c3f /bak            ext4    defaults 			0       1				使用default则启动故障
+
+
+/etc/rc.local  
+sleep 10s && mount /dev/sda6 /bak		无效，原因不详
+
+添加自启动 /etc/rc.local
+ibus-daemon -d -x -r
+
++- 系统采用英语编码
+locale -a								可以查看当前系统已经安装和支持的字体字符编码
+export LANG=zh_CN.gb18030 
+export LC_ALL=zh_CN.gb18030
+
+$ echo $LANG		zh_CN.UTF-8
+$ echo $LANGUAGE	zh_CN:zh:en_US:en
+$ echo $LC_ALL		空
+
+$ export LANG=en_US.UTF-8				Terminal中free命令的输出为英文了
+$ export LANGUAGE=en_US:en
+
+/etc/default/locale 中将
+LANG=”zh_CN.UTF-8″ LANGUAGE=”zh_CN:zh”  改为
+LANG=”en_US.UTF-8″ LANGUAGE=”en_US:en”  再运行
+locale-gen -en_US:en
+
+
+
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
++- 机器状态
+休眠：全停（所有设备都停止工作，内存中的数据保存于硬盘中）
+待机：内存不停（运行状态的数据保存在内存中）
+挂起：CPU、内存不停
+
+
+
+
+
+
+
+
+
+
+

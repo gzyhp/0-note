@@ -1,0 +1,31 @@
+
++- linux下最简单视频截取合并命令
+
+首先必须安装了ffmpeg，安装方法自查
+
+截取视频：
+	ffmpeg -strict experimental -ss 00:00:05 -t 00:00:10 -i input.mp4 -y -an -vcodec copy -sameq -pass 2 output.mp4
+
+格式转换：
+	ffmpeg -i input1.mp4 -f mpeg output1.mpg
+	ffmpeg -i output.mpg -f mp4  output.mp4
+合并视频：(mpg格式)
+	cat output1.mpg output2.mpg > output.mpg 
+
+含义：
+(可选)-strict experimental:实验性尝试
+      -ss 00：00：05： 从第5秒开始
+      -t  00:00:10:    截取10s的长度(可用如："00:00:10.25" 的格式)
+      -i input.mp4:    输入文件为input.mp4 (多个视频用多个 -i )
+      -y:              覆盖输出文件(如果output.mp4已存在)
+      -an:             忽略音频(-vn:忽略视频)
+      -vcodec copy:    视频解码方式为 copy
+      -sameq：         使用同样视频质量作为源
+(可选)-pass 2:         选择处理遍数。两遍编码非常有用。第一遍生成统计信息，第二遍生成精确的请求的码率
+      -f fmt:          转换成fmt格
+
+
+
+
+
+

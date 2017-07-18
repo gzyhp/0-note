@@ -1,0 +1,476 @@
+
+
++- 查看(指定)进程的CPU, MEM占用
+
+$ ps aux
+
+|  +- 指定进程
+$ ps u -C mousepad		($ UNIX95= ps -C mousepad  )(-C	直接输入命令查找)
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+smith     2991  0.1  0.8 505512 50040 ?        Sl   09:07   0:17 mousepad /bak/tmp/note-install.txt
+smith     3000  0.0  0.8 505348 49088 ?        Sl   09:07   0:04 mousepad /bak/tmp/note-sys.txt
+smith     3007  0.4  0.9 511972 54632 ?        Sl   09:07   0:41 mousepad /bak/tmp/note-cmd.txt
+smith     3013  0.5  0.9 512984 54732 ?        Sl   09:07   0:49 mousepad /bak/tmp/note-cmd-efficiency.txt
+
+|  +- 常用1
+ps axu	（BSD风格）
+-a 除session leader的所有进程
+-x 与tty有关
+-u userlist (CPU, MEM, COMMAND)
+
+|  +- 常用2
+ps -def  
+-d session leaders.(进程按照进程组管理，进程组又属于session;第一个属于某个session的进程id就是这个session的leader，session id就用它的进程id)
+-e 同-A(所有进程)
+-f 显示完整格式
+
++- 查看进程对资源的占用情况
+
+$ top
+top - 10:41:24 up  2:01,  3 users,  load average: 0.22, 0.16, 0.17
+Tasks: 236 total,   1 running, 235 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.8 us,  0.3 sy,  0.0 ni, 98.8 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+KiB Mem :  5994740 total,  3305288 free,  1435888 used,  1253564 buff/cache
+KiB Swap:  3906556 total,  3906556 free,        0 used.  4142716 avail Mem 
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND                                                  
+ 2662 smith     20   0 1801664 145388  76684 S   1.3  2.4   0:49.12 chromium-browse                                          
+ 4174 smith     20   0   43872   3804   3060 R   1.0  0.1   0:00.07 top                                                      
+ 2643 smith     20   0 1828216 177436 116840 S   0.7  3.0   0:49.01 chromium-browse                                          
+ 3273 smith     20   0 1041348 218612 133660 S   0.7  3.6   0:48.59 wps                                                      
+ 2498 smith     20   0 3495128 265296 162236 S   0.3  4.4   0:50.01 chromium-browse                                          
+ 2613 smith     20   0  445648  38404  29464 S   0.3  0.6   0:04.09 xfce4-terminal                                           
+ 2692 smith     20   0 1830648 142876  77456 S   0.3  2.4   0:15.54 chromium-browse  
+
+load average: 1、5、15分钟的负载情况(每5秒钟检查一次活跃的进程数，然后按特定算法计算出的数值。如果这个数除以逻辑CPU的数量，结果高于5的时候就表明系统在超负荷运转了。)
+us(用户空间占用CPU的百分比)	sy(内核空间占比)		ni(改变过优先级的进程占比)	id(空闲CPU百分比)	wa(IO等待占比)	hi(硬中断占比)	si(软中断占比)
+total（物理内存总量）	used（使用中的内存总量）	free（空闲内存总量）	buffers(缓存的内存量）
+total（交换区总量）	used（使用的交换区总量）	free（空闲交换区总量）	cached（缓冲的交换区总量）
+计算可用内存数(近似公式)：第四行的free + 第四行的buffers + 第五行的cached
+对于内存监控，在top里我们要时刻监控第五行swap交换分区的used，如果这个数值在不断的变化，说明内核在不断进行内存和swap的数据交换，这是真正的内存不够用了。
+
+PID — 进程id
+USER — 进程所有者
+PR — 进程优先级
+NI — nice值。负值表示高优先级，正值表示低优先级
+VIRT — 进程使用的虚拟内存总量，单位kb。VIRT=SWAP+RES
+RES — 进程使用的、未被换出的物理内存大小，单位kb。RES=CODE+DATA
+SHR — 共享内存大小，单位kb
+S — 进程状态。D=不可中断的睡眠状态 R=运行 S=睡眠 T=跟踪/停止 Z=僵尸进程
+%CPU — 上次更新到现在的CPU时间占用百分比
+%MEM — 进程使用的物理内存百分比
+TIME+ — 进程使用的CPU时间总计，单位1/100秒
+COMMAND — 进程名称（命令名/命令行）
+
+常用命令
+top -c			显示完整命令
+top -b			以批处理模式显示程序信息
+top -S			以累积模式显示程序信息
+top -n 2		设置信息更新次数
+top -d 3		设置信息更新时间
+top -p 574		显示指定的进程信息
+
+
+交互命令
+“1”，可监控每个逻辑CPU的状况;再按数字键1，就会返回到top基本视图界面。
+“b”（打开/关闭加亮效果）,“y”键关闭或打开运行态进程的加亮效果。
+“x”（打开/关闭排序列的加亮效果）
+“shift + >/<”: 右/左改变排序列; M-内存占用、P-CPU占用、T-累计时间
+h 显示帮助画面，给出一些简短的命令总结说明
+k 终止一个进程。
+i 忽略闲置和僵死进程。这是一个开关式命令。
+q 退出程序
+r 重新安排一个进程的优先级别
+S 切换到累计模式
+s 改变两次刷新之间的延迟时间（单位为s），如果有小数，就换算成m s。输入0值则系统将不断刷新，默认值是5 s
+f或者F 从当前显示中添加或者删除项目
+o或者O 改变显示项目的顺序
+l 切换显示平均负载和启动时间信息
+m 切换显示内存信息
+t 切换显示进程和CPU状态信息
+c 切换显示命令名称和完整命令行
+M 根据驻留内存大小进行排序
+P 根据CPU使用百分比大小进行排序
+T 根据时间/累计时间进行排序
+
++- 查看机器资源情况
+
+$ vmstat
+procs  -----------memory----------  ---swap--  -----io----  -system--  ------cpu-----
+ r  b  swpd  free      buff  cache  si     so  bi       bo  in     cs  us sy id wa st
+ 0  0  0     4858360  61976 506544   0     0   1589     59  195   472  7  4  59 30  0
+
+R:	运行和等待CPU时间片的进程数。长期大于CPU的个数，代表CPU不足		B：	等待资源的进程数，如果等待数量多，问题有可能处在I/O或者内存
+Swpd:	切换到内存交换区的内存大小[以KB为单位]						free:	当前空闲的物理内存数量[以KB为单位]
+si:	由磁盘调入内存												so:	由内存调入磁盘
+bi:	从块设备读入数据的总量										bo:	写到块设备的数据总量					bi+bo	1000 如果超过1000，代表硬盘的读写速度有问题
+in:	在某一时间间隔内观测到的每秒设备中断数[中断数太多对性能不好]		cs:	列表示每秒产生的上下文切换次数
+us:	用户进程消耗的CPU时间百分比									sy:	内核进程消耗的CPU时间百分比				us+sy > 80%	代表CPU资源不足 us+sy+id+wa=100
+id:	CPU处在空闲状态的时间百分比		wa:	IO等待所占用的时间百分比		runq-sz:	内存中可以运行的进程数			plist-sz:	系统中活跃的任务个数
+
+r 表示运行队列(就是说多少个进程真的分配到CPU)，我测试的服务器目前CPU比较空闲，没什么程序在跑，当这个值超过了CPU数目，就会出现CPU瓶颈了。这个也和top的负载有关系，一般负载超过了3就比较高，超过了5就高，超过了10就不正常了，服务器的状态很危险。top的负载类似每秒的运行队列。如果运行队列过大，表示你的CPU很繁忙，一般会造成CPU使用率很高。
+b 表示阻塞的进程,这个不多说，进程阻塞，大家懂的。
+swpd 虚拟内存已使用的大小，如果大于0，表示你的机器物理内存不足了，如果不是程序内存泄露的原因，那么你该升级内存了或者把耗内存的任务迁移到其他机器。
+free   空闲的物理内存的大小，我的机器内存总共8G，剩余3415M。
+buff   Linux/Unix系统是用来存储，目录里面有什么内容，权限等的缓存，我本机大概占用300多M
+cache cache直接用来记忆我们打开的文件,给文件做缓冲，我本机大概占用300多M(这里是Linux/Unix的聪明之处，把空闲的物理内存的一部分拿来做文件和目录的缓存，是为了提高程序执行的性能，当程序使用内存时，buffer/cached会很快地被使用。)
+si  每秒从磁盘读入虚拟内存的大小，如果这个值大于0，表示物理内存不够用或者内存泄露了，要查找耗内存进程解决掉。我的机器内存充裕，一切正常。
+so  每秒虚拟内存写入磁盘的大小，如果这个值大于0，同上。
+bi  块设备每秒接收的块数量，这里的块设备是指系统上所有的磁盘和其他块设备，默认块大小是1024byte，我本机上没什么IO操作，所以一直是0，但是我曾在处理拷贝大量数据(2-3T)的机器上看过可以达到140000/s，磁盘写入速度差不多140M每秒
+bo 块设备每秒发送的块数量，例如我们读取文件，bo就要大于0。bi和bo一般都要接近0，不然就是IO过于频繁，需要调整。
+in 每秒CPU的中断次数，包括时间中断
+cs 每秒上下文切换次数，例如我们调用系统函数，就要进行上下文切换，线程的切换，也要进程上下文切换，这个值要越小越好，太大了，要考虑调低线程或者进程的数目,例如在apache和nginx这种web服务器中，我们一般做性能测试时会进行几千并发甚至几万并发的测试，选择web服务器的进程可以由进程或者线程的峰值一直下调，压测，直到cs到一个比较小的值，这个进程和线程数就是比较合适的值了。系统调用也是，每次调用系统函数，我们的代码就会进入内核空间，导致上下文切换，这个是很耗资源，也要尽量避免频繁调用系统函数。上下文切换次数过多表示你的CPU大部分浪费在上下文切换，导致CPU干正经事的时间少了，CPU没有充分利用，是不可取的。
+us 用户CPU时间，我曾经在一个做加密解密很频繁的服务器上，可以看到us接近100,r运行队列达到80(机器在做压力测试，性能表现不佳)。
+sy 系统CPU时间，如果太高，表示系统调用时间长，例如是IO操作频繁。
+id  空闲 CPU时间，一般来说，id + us + sy = 100,一般我认为id是空闲CPU使用率，us是用户CPU使用率，sy是系统CPU使用率。
+wt 等待IO CPU时间。
+
+
++- 查看块设备（硬盘）IO性能
+
+$ iostat
+-d 1 2(采样时间间隔1秒，采样2次); -k(kB，原为扇区，一半);-x(详细的io统计信息)
+# iostat
+Linux 2.6.16.60-0.21-smp (linux)     06/12/12
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.07    0.00    0.05    0.06    0.00   99.81
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+sda               0.58         9.95        37.47    6737006   25377400
+
+avg-cpu: 总体cpu使用情况统计信息，对于多核cpu，这里为所有cpu的平均值；主要看iowait的值，它指示cpu用于等待io请求完成的时间。
+tps: 每秒进程下发的IO读、写请求数量
+Blk_read/s: 每秒读扇区数量(一扇区为512bytes)		Blk_wrtn/s: 每秒写扇区数量
+Blk_read: 取样时间间隔内读扇区总数量				Blk_wrtn: 取样时间间隔内写扇区总数量
+
+Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util
+sda               0.00  9915.00    1.00   90.00     4.00 34360.00   755.25    11.79  120.57   6.33  57.60
+
+rrqm/s: 每秒对该设备的读请求被合并次数						wrqm/s: 每秒对该设备的写请求被合并次数
+r/s: 每秒完成的读次数										w/s: 每秒完成的写次数
+rkB/s: 每秒读数据量(kB为单位)								wkB/s: 每秒写数据量(kB为单位)
+avgrq-sz:平均每次IO操作的数据量(扇区数为单位)					avgqu-sz: 平均等待处理的IO请求队列长度
+await: 平均每次IO请求等待时间(包括等待时间和处理时间，毫秒为单位)	svctm: 平均每次IO请求的处理时间(毫秒为单位)
+%util: 采用周期内用于IO操作的时间比率，即IO队列非空的时间比率
+ 
+对于以上示例输出，我们可以获取到以下信息：
+1、每秒向磁盘上写30M左右数据(wkB/s值)
+2、每秒有91次IO操作(r/s+w/s)，其中以写操作为主体
+3、平均每次IO请求等待处理的时间为120.57毫秒，处理耗时为6.33毫秒
+4、等待处理的IO请求队列中，平均有11.79个请求驻留
+ 
+以上各值之间也存在联系，我们可以由一些值计算出其他数值，例如：
+util = (r/s+w/s) * (svctm/1000)
+对于上面的例子有：util = (1+90)*(6.33/1000) = 0.57603
+
+评估IOPS的性能(用每秒读写IO字节数 除以 每秒读写IOPS数，rkB/s除以r/s，wkB/s除以w/s)－－每次IO的吞吐能力
+
++- 查看硬度读取速度情况－hdparm
+# sudo hdparm -t /dev/sda5
+ Timing buffered disk reads: 312 MB in  3.01 seconds = 103.75 MB/sec
+
+++++++++++++++++++++++++++++++++++++++++++ 子项分析 +++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+CPU
+
+目标：
+CPU 利用率，如果 CPU 有 100％ 利用率，那么应该到达这样一个平衡：65％－70％ User Time，30％－35％ System Time，0％－5％ Idle Time；
+上下文切换，上下文切换应该和 CPU 利用率联系起来看，如果能保持上面的 CPU 利用率平衡，大量的上下文切换是可以接受的；
+可运行队列，每个可运行队列不应该有超过1－3个线程（每处理器），比如：双处理器系统的可运行队列里不应该超过6个线程。
+
++- vmstat分析
+
+$ vmstat 1
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 4  0    140 2915476 341288 3951700  0    0     0     0 1057  523 19 81  0  0  0
+ 4  0    140 2915724 341296 3951700  0    0     0     0 1048  546 19 81  0  0  0
+ 4  0    140 2915848 341296 3951700  0    0     0     0 1044  514 18 82  0  0  0
+ 4  0    140 2915848 341296 3951700  0    0     0    24 1044  564 20 80  0  0  0
+ 4  0    140 2915848 341296 3951700  0    0     0     0 1060  546 18 82  0  0  0
+从上面的数据可以看出几点：
+interrupts（in）非常高，context switch（cs）比较低，说明这个 CPU 一直在不停的请求资源；
+user time（us）一直保持在 80％ 以上，而且上下文切换较低（cs），说明某个进程可能一直霸占着 CPU；
+run queue（r）刚好在4个。
+
+$ vmstat 1
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+14  0    140 2904316 341912 3952308  0    0     0   460 1106 9593 36 64  1  0  0
+17  0    140 2903492 341912 3951780  0    0     0     0 1037 9614 35 65  1  0  0
+20  0    140 2902016 341912 3952000  0    0     0     0 1046 9739 35 64  1  0  0
+17  0    140 2903904 341912 3951888  0    0     0    76 1044 9879 37 63  0  0  0
+16  0    140 2904580 341912 3952108  0    0     0     0 1055 9808 34 65  1  0  0
+从上面的数据可以看出几点：
+context switch（cs）比 interrupts（in）要高得多，说明内核不得不来回切换进程；
+进一步观察发现 system time（sy）很高而 user time（us）很低，而且加上高频度的上下文切换（cs），说明正在运行的应用程序调用了大量的系统调用（system call）；
+run queue（r）在14个线程以上，按照这个测试机器的硬件配置（四核），应该保持在12个以内。
+
++- mpstat查看
+$ mpstat -P ALL 1	（mpstat 可以输出多个处理器的数据）
+02:24:33 PM  CPU   %user   %nice    %sys %iowait    %irq   %soft  %steal   %idle    intr/s
+02:24:34 PM  all    5.26    0.00    4.01   25.06    0.00    0.00    0.00   65.66   1446.00
+02:24:34 PM    0    7.00    0.00    8.00    0.00    0.00    0.00    0.00   85.00   1001.00
+02:24:34 PM    1   13.00    0.00    8.00    0.00    0.00    0.00    0.00   79.00    444.00
+02:24:34 PM    2    0.00    0.00    0.00  100.00    0.00    0.00    0.00    0.00      0.00
+02:24:34 PM    3    0.99    0.00    0.99    0.00    0.00    0.00    0.00   98.02      0.00
+
++- ps分析
+查看某个程序、进程占用了多少 CPU 资源呢
+$ while :; do ps -eo pid,ni,pri,pcpu,psr,comm | grep 'firefox'; sleep 1; done
+  PID  NI PRI %CPU PSR COMMAND
+ 7252   0  24  3.2   3 firefox
+ 9846   0  24  8.8   0 firefox
+ 7252   0  24  3.2   2 firefox
+ 9846   0  24  8.8   0 firefox
+ 7252   0  24  3.2   2 firefox
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+内存
+
+两个内核进程：kswapd 和 pdflush。
+1、kswapd daemon 用来检查 pages_high 和 pages_low，如果可用内存少于 pages_low，kswapd 就开始扫描并试图释放 32个页面，并且重复扫描释放的过程直到可用内存大于 pages_high 为止。扫描的时候检查3件事：1）如果页面没有修改，把页放到可用内存列表里；2）如果页面被文件系统修改，把页面内容写到磁盘上；3）如果页面被修改了，但不是被文件系统修改的，把页面写到交换空间。
+2、pdflush daemon 用来同步文件相关的内存页面，把内存页面及时同步到硬盘上。比如打开一个文件，文件被导入到内存里，对文件做了修改后并保存后，内核并不马上保存文件到硬盘，由 pdflush 决定什么时候把相应页面写入硬盘，这由一个内核参数 vm.dirty_background_ratio 来控制，比如下面的参数显示脏页面（dirty pages）达到所有内存页面10％的时候开始写入硬盘。
+# /sbin/sysctl -n vm.dirty_background_ratio
+10
+
++- vmstat分析
+以下数据来自 VPSee 的一个 256MB RAM，512MB SWAP 的 Xen VPS：
+# vmstat 1
+procs -----------memory---------- ---swap---- -----io---- --system--  -----cpu-------
+ r  b   swpd   free   buff  cache    si    so    bi    bo   in    cs  us sy id  wa st
+ 0  3 252696   2432    268   7148  3604  2368  3608  2372  288   288   0  0 21  78  1
+ 0  2 253484   2216    228   7104  5368  2976  5372  3036  930   519   0  0  0 100  0
+ 0  1 259252   2616    128   6148 19784 18712 19784 18712 3821  1853   0  1  3  95  1
+ 1  2 260008   2188    144   6824 11824  2584 12664  2584 1347  1174  14  0  0  86  0
+ 2  1 262140   2964    128   5852 24912 17304 24952 17304 4737  2341  86 10  0   0  4
+swpd，已使用的 SWAP 空间大小，KB 为单位；
+free，可用的物理内存大小，KB 为单位；
+buff，物理内存用来缓存读写操作的 buffer 大小，KB 为单位；
+cache，物理内存用来缓存进程地址空间的 cache 大小，KB 为单位；
+si，数据从 SWAP 读取到 RAM（swap in）的大小，KB 为单位；
+so，数据从 RAM 写到 SWAP（swap out）的大小，KB 为单位；
+bi，磁盘块从文件系统或 SWAP 读取到 RAM（blocks in）的大小，block 为单位；
+bo，磁盘块从 RAM 写到文件系统或 SWAP（blocks out）的大小，block 为单位；
+
+上面是一个频繁读写交换区的例子，可以观察到以下几点：
+1、物理可用内存 free 基本没什么显著变化，swapd 逐步增加，说明最小可用的内存始终保持在 256MB X 10％ = 2.56MB 左右，当脏页达到10％的时候（vm.dirty_background_ratio ＝ 10）就开始大量使用 swap；
+2、buff 稳步减少说明系统知道内存不够了，kwapd 正在从 buff 那里借用部分内存；
+3、kswapd 持续把脏页面写到 swap 交换区（so），并且从 swapd 逐渐增加看出确实如此。根据上面讲的 kswapd 扫描时检查的三件事，如果页面被修改了，但不是被文件系统修改的，把页面写到 swap，所以这里 swapd 持续增加。
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+磁盘IO
+|  
++- 基本原理
+|  |
+|  +- 内存页
+|  |
+|  +- 缺页中断:主缺页中断（Major Page Fault从磁盘读取数据）和次缺页中断（Minor Page Fault从内存缓存区中而不是直接从硬盘中读取数据）
+|  |
+|  +- File Buffer Cache（内存缓存区,也叫文件缓存区）:把那些暂时不用的物理内存高效的利用起来做预存,尽可能产生次缺页中断（从文件缓存区读）、避免主缺页中断（从硬盘读） 
+|  |
+|  +- 页面类型：Read pages，只读页（或代码页）、Dirty pages，脏页、Anonymous pages，匿名页
+|  |
+|  +- IOPS（IO’s Per Second）：例访问一个word－－磁盘随机访问需8,000,000nanosec=8ms，顺序访问200ns，内存访问10ns.这个硬盘可以提供125次IOPS(1000ms/8ms)
+|  |
+|  +- 顺序IO和随机IO（性能监测前需要弄清楚系统偏向顺序IO的应用还是随机IO应用）
+|  |
+|  +- SWAP(swap设备和内存之间的swapping状况是判断Linux系统性能的重要参考)
+
++- 查看系统默认的页面大小
+$ /usr/bin/time -v date
+...
+Page size (bytes): 4096
+...
+
++- 查看某程序第一次启动的时候产生了多少主缺页中断和次缺页中断
+$ /usr/bin/time -v date
+...
+Major (requiring I/O) page faults: 1
+Minor (reclaiming a frame) page faults: 260
+...
+
++- 查看机器上的物理内存和文件缓存区的情况
+$ cat /proc/meminfo
+MemTotal:      8182776 kB
+MemFree:       3053808 kB
+Buffers:        342704 kB
+Cached:        3972748 kB
+
++- 评估IOPS的性能(用每秒读写IO字节数 除以 每秒读写IOPS数，rkB/s除以r/s，wkB/s除以w/s)
+$ iostat -kx 1		顺序IO示例
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.00    0.00    2.50   25.25    0.00   72.25
+Device:  rrqm/s   wrqm/s   r/s   w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util
+sdb       24.00 19995.00 29.00 99.00  4228.00 45060.00   770.12    45.01  539.65   7.80  99.80
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.00    0.00    1.00   30.67    0.00   68.33
+Device:  rrqm/s   wrqm/s   r/s   w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util
+sdb        3.00 12235.00  3.00 112.00   768.00 54272.00   957.22   144.85  576.44   8.70 100.10
+
+45060.00 / 99.00 = 455.15KB per IO，54272.00 / 112.00 = 484.57KB per IO（每次IO写的数据是增加的）。相对随机IO而言，顺序IO更应该重视每次IO的吞吐能力（KB per IO）：
+
+$ iostat -kx 1		随机IO示例
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           1.75    0.00    0.75    0.25    0.00   97.26
+
+Device:  rrqm/s   wrqm/s   r/s   w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util
+sdb        0.00    52.00  0.00 57.00     0.00   436.00    15.30     0.03    0.54   0.23   1.30
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           1.75    0.00    0.75    0.25    0.00   97.24
+
+Device:  rrqm/s   wrqm/s   r/s   w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util
+sdb        0.00    56.44  0.00 66.34     0.00   491.09    14.81     0.04    0.54   0.19   1.29
+
+按照上面的公式得出：436.00 / 57.00 = 7.65 KB per IO，491.09 / 66.34 = 7.40 KB per IO. 与顺序 IO 比较发现，随机 IO 的 KB per IO 小到可以忽略不计，可见对于随机 IO 而言重要的是每秒能 IOPS 的次数，而不是每次 IO 的吞吐能力（KB per IO）。
+
++- 监测swap和swapping情况
+$ cat /proc/meminfo
+MemTotal:      8182776 kB
+MemFree:       2125476 kB
+Buffers:        347952 kB
+Cached:        4892024 kB
+SwapCached:        112 kB
+...
+SwapTotal:     4096564 kB
+SwapFree:      4096424 kB
+...
+
+$ vmstat 1
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------
+r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+1  2 260008   2188    144   6824 11824 2584 12664  2584 1347 1174 14  0  0 86  0
+2  1 262140   2964    128   5852 24912 17304 24952 17304 4737 2341 86 10  0  0  4
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+网络
+网络的监测是所有 Linux 子系统里面最复杂的，有太多的因素在里面，比如：延迟、阻塞、冲突、丢包等，更糟的是与 Linux 主机相连的路由器、交换机、无线信号都会影响到整体网络并且很难判断是因为 Linux 网络子系统的问题还是别的设备的问题，增加了监测和判断的复杂度。
+
+查看网卡的配置和工作模式
+$ sudo ethtool enp7s0
+Settings for enp7s0:
+	Supported ports: [ TP MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full 
+	                        100baseT/Half 100baseT/Full 
+	Supported pause frame use: No
+	Supports auto-negotiation: Yes
+	Advertised link modes:  10baseT/Half 10baseT/Full 
+	                        100baseT/Half 100baseT/Full 
+	Advertised pause frame use: Symmetric Receive-only
+	Advertised auto-negotiation: Yes
+	Speed: 10Mb/s
+	Duplex: Half
+	Port: MII
+	PHYAD: 0
+	Transceiver: internal
+	Auto-negotiation: on
+	Supports Wake-on: pumbg
+	Wake-on: g
+	Current message level: 0x00000033 (51)
+			       drv probe ifdown ifup
+	Link detected: no
+
+强制网卡工作在1000baseT下
+$ sudo ethtool -s eth0 speed 1000 duplex full autoneg off
+
+查看本机网络吞吐量
+$ sudo iptraf -d lo
+
+网络性能测量(client/server方式)
+# netserver													服务器端开启
+# netperf -H 172.16.38.36 -l 10								客户端执行一次持续10秒的TCP测试
+# netperf -t TCP_RR -H 172.16.38.36 -l 10 -- -r 2048,32768	在TCP requests使用2K大小，responses使用32K情况下的处理速率
+
+网络性能测试
+# iperf -s -D												服务器端启动
+# iperf -c 172.16.38.36 -t 30 -i 5							客户端测试，30秒内每隔5秒对服务器和客户端之间的网络进行一次带宽测试和采样
+
+捕获数据包进行细致的分析
+# /usr/sbin/tcpdump -w network.dmp			抓包
+# tcptrace network.dmp						分析
+# tcptrace -f'rexmit_segs>100' network.dmp	找出转播大于100 segments 的连接
+# tcptrace -o10 network.dmp					＃10连接有问题，查看关于这个连接的其他信息
+# tcptrace -xslice network.dmp				slice模式，程序自动在当前目录创建了一个slice.dat文件，这个文件包含了每隔15秒的转播信息
+# cat slice.dat
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
++- 查看与管理用户登录情况
+
+|  +- 查看当前登录用户
+$ who
+smith    tty7         2017-07-08 15:18 (:0)
+smith    pts/2        2017-07-08 16:23 (:0.0)
+第一列是用户名,
+第二列是连接的终端,tty表示显示器,pts表示远程连接,
+第三列是登陆时间,
+
+|  +- 查看登录用户行为
+$ w
+ 16:43:40 up  1:26,  2 users,  load average: 0.03, 0.18, 0.18
+USER     TTY      来自           LOGIN@   IDLE   JCPU   PCPU WHAT
+smith    tty7     :0               15:18    1:26m  1:46   0.17s /sbin/upstart --user
+smith    pts/2    :0.0             16:23    1.00s  0.06s  0.01s w
+users 表示当前系统登陆用户总数
+LOAD AVERAGE 与后面的数字一起表示系统在过去1，5，10分钟内的负载程度，数值越小，系统负载越轻。
+从第二行开始
+USER：显示登陆用户帐号名。用户重复登陆，该帐号也会重复出现。
+TTY：用户登陆所用的终端。
+FROM：显示用户在何处登陆系统。
+LOGIN@：是LOGIN AT的意思，表示登陆进入系统的时间。
+IDLE：用户空闲时间，从用户上一次任务结束后，开始记时。
+JCPU：一终端代号来区分，表示在某段时间内，所有与该终端相关的进程任务所耗费的CPU时间。
+PCPU：指WHAT域的任务执行后耗费的CPU时间。
+WHAT：表示当前执行的任务
+当登陆系统用户很多的时候，可以在W后面加上某个用户名，则会查看该用户执行任务的情况
+
+|  +- 查看smith用户执行任务情况
+$ w smith
+ 17:17:24 up  2:00,  2 users,  load average: 0.20, 0.16, 0.11
+USER     TTY      来自           LOGIN@   IDLE   JCPU   PCPU WHAT
+smith    tty7     :0               15:18    1:59m  1:52   0.18s /sbin/upstart --user
+smith    pts/2    :0.0             16:23    3.00s  0.06s  0.01s w smith
+
+|  +- 查看登陆用户历史
+$ last
+$ last smith
+smith    pts/2        :0.0             Sat Jul  8 16:23    gone - no logout
+
+|  +- 踢除linfengfeiye这个用户和他的所有开启的程序
+pkill -u linfengfeiye
+注意：这个命令实际上很危险，要相当小心的执行 原因参考 http://www.blogguy.cn/
+安全的做法是先查看终端号，然后查看该终端执行的所有进程，根据进程号来停止服务
+
+|  +- 安全剔除用户
+ps -ef| grep pts/0
+得到用户登录相应的进程号pid后执行.
+kill -9 pid
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+实验指引
+
+5大命令工具：find和grep命令, netstat/nmap命令, screen命令, head/tail命令, vi/nano/emacs工具
+4大备份工具：dump, cpio, tar, dd  其他（cp, pax, fbackup）
+10大性能瓶颈：CPU-vmstat, 内存-free, 存储-, 网络-Cacti, 应用程序-nagios , 恶意软件-Malwarebytes或spybot, 工作负载-集群管理技术, 故障或过期硬件-, 文件系统-Tripwire, 技术- 
+
+5大性能工具： top, vmstat, iostat, free, sar
+13大性能工具：5大 ＋ mpstat, uptime, dmesg, pmap, strace, ulimit, traffic-vis, KDE System Guard
+
+
+
+
+
+
+
+

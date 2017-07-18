@@ -1,0 +1,78 @@
+
+Day 1 - 搭建开发环境
+
++- python环境
+sudo apt install python3-pip
+pip3 install aiohttp			异步框架
+pip3 install jinja2				前端模板引擎
+pip3 install aiomysql			MySQL的Python异步驱动程序aiomysql
+
++- 安装mysql5.7
+sudo apt-get install mysql-server
+sudo apt-get install mysql-client
+sudo apt-get install libmysqlclient-dev
+
+sudo netstat -tap | grep mysql
+	socket处于 listen 状态则表示安装成功。
+
+mysql -u root -p			(123456 或 空 或 123)
+>show databases;
+>use mysql
+> show tables;
+
++- 项目工作目录结构
+
+awesome-python3-webapp/  <-- 根目录
+|
++- backup/               <-- 备份目录
+|
++- conf/                 <-- 配置文件
+|
++- dist/                 <-- 打包目录
+|
++- www/                  <-- Web目录，存放.py文件
+|  |
+|  +- static/            <-- 存放静态文件
+|  |
+|  +- templates/         <-- 存放模板文件
+|
++- ios/                  <-- 存放iOS App工程
+|
++- LICENSE               <-- 代码LICENSE
+
+
+Day 2
+使用python3的asyncio写的网页不显示，会直接变成下载文件
+解决: 在Response中加上content_type='text/html'就好了， return web.Response(body=b'<h1>Awesome</h1>', content_type='text/html') 
+
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+with ... as ...
+有一些任务，可能事先需要设置，事后做清理工作。对于这种场景，Python的with语句提供了一种非常方便的处理方式。
+file = open("/tmp/foo.txt")
+data = file.read()
+file.close()
+
+file = open("/tmp/foo.txt")
+try:
+    data = file.read()
+finally:
+    file.close()
+
+with open("/tmp/foo.txt") as file:
+    data = file.read()
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,115 @@
+
+
+win分区挂载
+----------------------------------------------------------------------------------------------------------------
+mount -t vfat /dev/sda2 /mnt/wind -o iocharset=utf8		<=(ok)
+
+系统启动后自动挂载分区，在/etc/fstab文件中加入行
+/dev/sda2 /mnt/wind vfat defaults,iocharset=utf8 0 0
+
+
+卸载分区
+umount /dev/sda2
+
+
+如果你的locale不是zh_CN.UTF-8，把上面命令的utf8改为gb2312；如果这个windows分区是ntfs格式的，将上面命令的vfat改为ntfs。
+
+这样挂载的ntfs格式的分区，只有root能读取，如果需要让普通用户也能读取，需要再加上umask=022选项，如下：
+
+mount -t ntfs /dev/sda1 /mnt/C -o iocharset=utf8,umask=022
+
+类似地，如果要让挂载的分区允许所有用户读取和修改，可以将上面的umask=022，改为umask=0就可以了。
+
+
+mount -o codepage=936,iocharset=cp936 /dev/hda7 /mnt/cdrom (mount -t
+vfat -o iocharset=cp936 /dev/hda7 /mnt/cdrom)
+
+================================================================================================================
+win分区文件在linux中乱码
+----------------------------------------------------------------------------------------------------------------
+gb13080 grub2-iso.txt在gedit打开编码错，在libraoffice中用gb13080打开正确
+
+================================================================================================================
+在Linux制作用grub2启动iso文件的U盘
+----------------------------------------------------------------------------------------------------------------
+
+第一步：(视情况选做) 格式化U盘
+制作启动U盘需要至少有一个fat格式的分区（例如fat32），我们大多数的u盘都是fat32的文件系统。所以请你先看一下自己u盘是否为fat格式，如果是请跳过此步骤。否则我们先给u盘创建一个fat32文件系统的分区：
+
+打开命令行，输入：
+sudo su					<== 切换到root管理员身份
+fdisk -l				<== 查询现挂载有的存储设备，记住你的u盘盘符
+fdisk /dev/sdx				<==（把sdx换成你的u盘盘符，后果很严重千万别搞错！）
+输入d					<==（删除现存分区）
+输入n					<==（创建一个新分区）
+输入p					<==（主分区）
+输入1					<==（创建第一个分区）
+输入[回车]				<==（使用第一个柱面）
+再次输入[回车]				<==（使用默认值作为最后一个柱面）
+输入a					<==（活动分区）
+输入1					<==（让第一个分区作为活动可启动分区）
+输入w					<==（将修改写入并关闭fdisk）
+umount /dev/sdx1			<== 卸载已经挂载的分区
+mkfs.vfat -F 32 -n MULTIBOOT /dev/sdx1	<== 将分区格式化为fat32
+
+第二步：在U盘上安装grub2
+
+打开命令行，输入：
+mkdir /media/MULTIBOOT/								<== 创建一个目录用于挂载
+mount /dev/sdx1 /media/MULTIBOOT/						<== 挂载U盘
+grub-install --force --no-floppy --root-directory=/media/MULTIBOOT/ /dev/sdx	<== 安装grub2
+grub2安装好了，此时，在你的u盘根目录下应该存在一个“/boot/grub/”的目录，里面存放有一些文件。现在我们还需要在u盘的“/boot/grub/”下创建一个grub.cfg文件。grub.cfg是grub2的引导配置文件。其格式如下（可参照下面格式写）：
+
+menuentry "Ubuntu 10.10 Desktop ISO" {
+	loopback loop /ubuntu11.10.iso(*)	
+	linux (loop)/casper/vmlinuz(**) boot=casper iso-scan/filename=/ubuntu.iso(*) noeject noprompt splash
+	initrd (loop)/casper/initrd.lz(**)
+}
+
+* 注意文件名
+** 注意与iso解包后/casper目录下文件对应，ubuntu-12.04.2-desktop-amd64.iso中是vmlinuz.efi, initrd.lz；vmlinuz.efi少.efi后启动时报找不到文件错
+! 启动时F12后，实验U盘有时没找到，多实验几次
+
+menuentry "Linux Mint 10 Gnome ISO" {
+	loopback loop /linuxmint10.iso
+	linux (loop)/casper/vmlinuz file=/cdrom/preseed/mint.seed boot=casper initrd=/casper/initrd.lz iso-scan/filename=/linuxmint10.iso noeject noprompt splash
+	initrd (loop)/casper/initrd.lz
+}
+
+menuentry "DBAN ISO" {
+	loopback loop /dban.iso
+	linux (loop)/DBAN.BZI nuke="dwipe" iso-scan/filename=/dban.iso silent
+}
+
+menuentry "Tinycore ISO" {
+	loopback loop /tinycore.iso
+	linux (loop)/boot/bzImage
+	initrd (loop)/boot/tinycore.gz
+}
+
+menuentry "Memtest 86+" {
+	linux16 /memtest86+.bin
+}
+
+menuentry "SystemRescueCd" {
+	loopback loop /systemrescuecd.iso
+	linux (loop)/isolinux/rescuecd isoloop=/systemrescuecd.iso setkmap=us docache dostartx
+	initrd (loop)/isolinux/initram.igz
+}
+
+第三步：添加iso镜像文件：
+至此，你的u盘已经是一个可启动的u盘了。你可以先插上u盘重启，在BIOS里面选择从u盘引导，然后，不出意外，你应该已经能看得到grub2的菜单了，那么就说明你之前的操作都没有问题。现在，最后一步，我们要把相应的系统镜像拷贝到u盘根目录下即可，注意文件名应该和grub.cfg中的对应。
+
+
+
+
+
+
+
+
+
+
+
+
+
+

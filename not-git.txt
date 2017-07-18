@@ -1,0 +1,41 @@
+
+
++- 安装Git
+$git							查看是否安装
+$sudo apt-get install git		进行安装
+
+$ git config --global user.name "gzyhp"
+$ git config --global user.email "gzyhp@126.com"
+
++- 创建版本库
+$ mkdir /bak/0-note				创建、转到一个版本库目录
+$ cd /bak/0-note
+$ git init						这个目录变成Git可以管理的仓库
+
+$ vi readme.txt					编写一个readme.txt文件"Git is a version control system.Git is free software."
+$ git add readme.txt			把文件添加到仓库
+$ git commit -m "wrote a readme file"	把文件提交到仓库
+
+$ git status
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
