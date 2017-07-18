@@ -1,0 +1,100 @@
+
+
++- 安装Git
+$git							查看是否安装
+$sudo apt-get install git		进行安装
+
+$ git config --global user.name "gzyhp"
+$ git config --global user.email "gzyhp@126.com"
+
++- 创建版本库
+$ mkdir /bak/0-note				创建、转到一个版本库目录
+$ cd /bak/0-note
+
+$ git init						这个目录变成Git可以管理的仓库
+
+$ vi readme.txt					编写一个readme.txt文件"Git is a version control system.Git is free software."
+$ git add readme.txt			把文件添加到仓库
+$ git commit -m "wrote a readme file"	把文件提交到仓库
+
+$ git status
+
+$ git commit -m "commit all files"
+
+
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+中文及相关
+
+$ git status
+位于分支 master
+要提交的变更：
+  （使用 "git reset HEAD <文件>..." 以取消暂存）
+
+	新文件：   bak/note-U.txt
+	新文件：   "bak/\347\272\257\346\226\207\346\234\254\346\226\207\346\241\243\346\250\241\346\235\277.txt"
+	新文件：   "bak/\350\203\275\346\272\220\345\270\270\346\225\260.txt"
+	新文件：   not-git.txt
+
+$ export LANG=en_US.UTF-8
+$ export LANGUAGE=en_US:en
+$ git status
+On branch master
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	new file:   bak/note-U.txt
+	new file:   "bak/\347\272\257\346\226\207\346\234\254\346\226\207\346\241\243\346\250\241\346\235\277.txt"
+	new file:   "bak/\350\203\275\346\272\220\345\270\270\346\225\260.txt"
+	new file:   not-git.txt
+
+$ git status
+位于分支 master
+尚未暂存以备提交的变更：
+  （使用 "git add <文件>..." 更新要提交的内容）
+  （使用 "git checkout -- <文件>..." 丢弃工作区的改动）
+
+	修改：     not-git.txt
+	修改：     readme.txt
+
+修改尚未加入提交（使用 "git add" 和/或 "git commit -a"）
+
+$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   not-git.txt
+	modified:   readme.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
