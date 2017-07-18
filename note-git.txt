@@ -62,21 +62,33 @@ $ vi  readme.txt				修改：增加行Git tracks changes.
 $ git add readme.txt
 $ git status
 
-$ cat readme.txt 				修改：Git tracks changes |of files|.
+$ vi  readme.txt 				修改：Git tracks changes |of files|.
 $ git commit -m "git tracks changes"
 $ git status					暂存区的修改(第一次)提交了，第二次的修改(未add到暂存区)不会被提交
 
 $ git diff HEAD -- readme.txt 	比较：库里的（最新版本）--工作区里的
 
++- 撤销修改
+$ vi readme.txt					修改(已add，未commit)：增加行My stupid boss still prefers SVN.
+$ git status
+$ git checkout -- readme.txt	撤销工作区的全部修改
+$ cat readme.txt
 
+$ vi readme.txt					修改(未add)：增加行My stupid boss still prefers SVN.
+$ git add readme.txt
+$ git status
+$ git reset HEAD readme.txt		把暂存区的修改撤销掉（unstage），重新放回工作区
+$ cat readme.txt
+$ git status					暂存区干净，工作区有修改
+$ git checkout -- readme.txt	丢弃工作区的修改
+$ git status
 
-
-
-
-
-
-
-
+场景1:
+当你改乱了工作区某个文件的内容，想直接丢弃工作区的修改时，用git checkout -- file。
+场景2：
+当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，分两步，第一步用命令git reset HEAD file，就回到了场景1，第二步按场景1操作。
+场景3：
+已经提交了不合适的修改到版本库时，想要撤销本次提交，参考版本回退一节，不过前提是没有推送到远程库。
 
 
 
