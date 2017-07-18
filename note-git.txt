@@ -26,7 +26,7 @@ $ git status
 +- 修改前后的比较
 $ vi readme.txt					修改Git is a |distributed| version control system.
 $ git status
-$ git diff readme.txt 			看看具体修改了什么内容
+$ git diff readme.txt 			看看具体修改了什么内容  比较：库里的（最新版本）--工作区里的
 $ git add readme.txt
 $ git status
 $ git commit -m "add distributed"
@@ -46,16 +46,40 @@ $ cat readme.txt
 $ git reflog					回退后找新版本的commit id（用于恢复到未来/新版本）
 
 +- 工作区和暂存区
-$ vi readme.txt					修改：Git has a mutable index called stage.
+$ vi readme.txt					修改：增加行Git has a mutable index called stage.
 $ vi LICENSE					新增
-$ git status
+$ git status					工作区：一改一新	待add
 
 $ git add readme.txt
 $ git add LICENSE
-$ git status					暂存区：一改一新
+$ git status					暂存区：一改一新	待commit
 
 $ git commit -m "understand how stage works"
 $ git status					暂存区：空（“干净”）
+
++- 管理修改
+$ vi  readme.txt				修改：增加行Git tracks changes.
+$ git add readme.txt
+$ git status
+
+$ cat readme.txt 				修改：Git tracks changes |of files|.
+$ git commit -m "git tracks changes"
+$ git status					暂存区的修改(第一次)提交了，第二次的修改(未add到暂存区)不会被提交
+
+$ git diff HEAD -- readme.txt 	比较：库里的（最新版本）--工作区里的
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
