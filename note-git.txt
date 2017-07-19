@@ -1,8 +1,8 @@
 
 
 +- 安装Git
-$git							查看是否安装
-$sudo apt-get install git		进行安装
+$ git							查看是否安装
+$ sudo apt-get install git		进行安装
 
 $ git config --global user.name "gzyhp"
 $ git config --global user.email "gzyhp@126.com"
@@ -69,12 +69,12 @@ $ git status					暂存区的修改(第一次)提交了，第二次的修改(未
 $ git diff HEAD -- readme.txt 	比较：库里的（最新版本）--工作区里的
 
 +- 撤销修改
-$ vi readme.txt					修改(已add，未commit)：增加行My stupid boss still prefers SVN.
+$ vi readme.txt					修改(未add)：增加行My stupid boss still prefers SVN.
 $ git status
 $ git checkout -- readme.txt	撤销工作区的全部修改
 $ cat readme.txt
 
-$ vi readme.txt					修改(未add)：增加行My stupid boss still prefers SVN.
+$ vi readme.txt					修改(已add，未commit)：增加行My stupid boss still prefers SVN.
 $ git add readme.txt
 $ git status
 $ git reset HEAD readme.txt		把暂存区的修改撤销掉（unstage），重新放回工作区
@@ -90,14 +90,26 @@ $ git status
 场景3：
 已经提交了不合适的修改到版本库时，想要撤销本次提交，参考版本回退一节，不过前提是没有推送到远程库。
 
++- 删除文件
+$ touch test.txt
+$ git add test.txt
+$ git commit -m "add test.txt"
+$ rm test.txt					删除（也可直接在文件管理器中删除）
+$ git status					工作区和版本库就不一致了，Git知道你删除了文件
 
+$ git rm test.txt				选择一：确实要从版本库中删除（git rm，git commit）
+$ git commit -m "remove test.txt"
 
+$ git checkout -- test.txt		选择二：删错了，要把误删的文件从版本库里恢复到最新版本
 
++- 远程仓库
+$ ssh-keygen -t rsa -C "gzyhp@126.com"		~/.ssh/id_rsa  id_rsa.pub
+https://github.com				注册: gzyhp gzyhp@126.com gzyhp126; 创建仓库: 0-note
 
-
-
-
-
+$ git remote add origin git@github.com:gzyhp/0-note		本地库关联远程库
+$ git push -u origin master								把本地库的所有内容推送到远程库
+$ git push origin master								本地提交后，都可以推送
+$ git clone git@github.com:gzyhp/0-note					从远程库克隆一个本地库
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 中文及相关
